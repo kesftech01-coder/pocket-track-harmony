@@ -181,6 +181,69 @@ export function recordWithdrawal(studentId: string, amount: number, note: string
   return pushDisbursement({ studentId, type: "withdrawal", amount, note, source: "Manual" });
 }
 
+export type BulkEntry = { studentId: string; amount: number };
+
+/**
+ * Record multiple withdrawals in one atomic write. Validates that every entry
+ * has a positive amount and does not exceed the student's current balance
+ * before mutating anything — returns { ok: false, errors } otherwise so the
+ * caller can show them all at once and no balance is partially updated.
+ */
+export function recordWithdrawalsBulk(
+  entries: BulkEntry[],
+  note: string,
+): { ok: true; count: number; total: number } | { ok: false; errors: string[] } {
+  const errors: string[] = [];
+  const students = getStudents();
+  const byId = new Map(students.map((s) => [s.id, s]));
+
+  const cleaned: BulkEntry[] = [];
+  for (const e of entries) {
+    const s = byId.get(e.studentId);
+    if (!s) {
+      errors.push(`Student not found.`);
+      continue;
+    }
+    if (!Number.isFinite(e.amount) || e.amount <= 0) continue; // skip empty rows
+    if (e.amount > s.balance) {
+      errors.push(`${s.name}: amount exceeds balance (${formatKES(s.balance)}).`);
+      continue;
+    }
+    cleaned.push({ studentId: e.studentId, amount: e.amount });
+  }
+
+  if (!note.trim()) errors.push("Add a note for this batch (e.g. Lunch, Trip).");
+  if (cleaned.length === 0 && errors.length === 0) errors.push("Enter an amount for at least one student.");
+  if (errors.length > 0) return { ok: false, errors };
+
+  const now = new Date().toISOString();
+  const newRecords: Disbursement[] = cleaned.map((e) => ({
+    id: crypto.randomUUID(),
+    studentId: e.studentId,
+    type: "withdrawal",
+    amount: e.amount,
+    note: note.trim(),
+    source: "Bulk",
+    createdAt: now,
+  }));
+
+  const deltaByStudent = new Map<string, number>();
+  for (const e of cleaned) {
+    deltaByStudent.set(e.studentId, (deltaByStudent.get(e.studentId) ?? 0) + e.amount);
+  }
+
+  const updatedStudents = students.map((s) => {
+    const delta = deltaByStudent.get(s.id);
+    return delta ? { ...s, balance: Math.max(0, s.balance - delta) } : s;
+  });
+
+  write(KEYS.disbursements, [...newRecords, ...getDisbursements()]);
+  write(KEYS.students, updatedStudents);
+
+  const total = cleaned.reduce((sum, e) => sum + e.amount, 0);
+  return { ok: true, count: cleaned.length, total };
+}
+
 // ---------- Unmatched M-Pesa messages ----------
 
 export function getUnmatched(): UnmatchedMessage[] {
