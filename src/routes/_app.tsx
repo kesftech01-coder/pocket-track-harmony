@@ -33,6 +33,7 @@ function AppLayout() {
 
   const nav = [
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/bulk", label: "Bulk disbursement", icon: Receipt },
     { to: "/admin", label: "Administration", icon: Users },
     { to: "/mpesa", label: "M-Pesa Inbox", icon: Inbox, badge: unmatchedCount },
     { to: "/simulate", label: "Simulate SMS", icon: MessageSquarePlus },
