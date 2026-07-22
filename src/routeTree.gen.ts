@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppSimulateRouteImport } from './routes/_app.simulate'
 import { Route as AppMpesaRouteImport } from './routes/_app.mpesa'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
+import { Route as AppBulkRouteImport } from './routes/_app.bulk'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
 import { Route as AppStudentsIdRouteImport } from './routes/_app.students.$id'
 
@@ -47,6 +48,11 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
+const AppBulkRoute = AppBulkRouteImport.update({
+  id: '/bulk',
+  path: '/bulk',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAdminRoute = AppAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -62,6 +68,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin': typeof AppAdminRoute
+  '/bulk': typeof AppBulkRoute
   '/dashboard': typeof AppDashboardRoute
   '/mpesa': typeof AppMpesaRoute
   '/simulate': typeof AppSimulateRoute
@@ -71,6 +78,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin': typeof AppAdminRoute
+  '/bulk': typeof AppBulkRoute
   '/dashboard': typeof AppDashboardRoute
   '/mpesa': typeof AppMpesaRoute
   '/simulate': typeof AppSimulateRoute
@@ -82,6 +90,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
   '/_app/admin': typeof AppAdminRoute
+  '/_app/bulk': typeof AppBulkRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/mpesa': typeof AppMpesaRoute
   '/_app/simulate': typeof AppSimulateRoute
@@ -93,6 +102,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admin'
+    | '/bulk'
     | '/dashboard'
     | '/mpesa'
     | '/simulate'
@@ -102,6 +112,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admin'
+    | '/bulk'
     | '/dashboard'
     | '/mpesa'
     | '/simulate'
@@ -112,6 +123,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/auth'
     | '/_app/admin'
+    | '/_app/bulk'
     | '/_app/dashboard'
     | '/_app/mpesa'
     | '/_app/simulate'
@@ -168,6 +180,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/bulk': {
+      id: '/_app/bulk'
+      path: '/bulk'
+      fullPath: '/bulk'
+      preLoaderRoute: typeof AppBulkRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/admin': {
       id: '/_app/admin'
       path: '/admin'
@@ -187,6 +206,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRoute
+  AppBulkRoute: typeof AppBulkRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppMpesaRoute: typeof AppMpesaRoute
   AppSimulateRoute: typeof AppSimulateRoute
@@ -195,6 +215,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAdminRoute: AppAdminRoute,
+  AppBulkRoute: AppBulkRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppMpesaRoute: AppMpesaRoute,
   AppSimulateRoute: AppSimulateRoute,
@@ -211,3 +232,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
