@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, redirect, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Users, Inbox, LogOut, Wallet, MessageSquarePlus } from "lucide-react";
+import { LayoutDashboard, Users, Inbox, LogOut, Wallet, MessageSquarePlus, Receipt } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getTeacher, signOut, getUnmatched } from "@/lib/pocket-track/store";
