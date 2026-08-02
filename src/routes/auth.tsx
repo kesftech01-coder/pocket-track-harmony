@@ -29,6 +29,7 @@ function AuthPage() {
   const [className, setClassName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [appleLoading, setAppleLoading] = useState(false);
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -39,6 +40,37 @@ function AuthPage() {
     }
     navigate({ to: "/dashboard" });
   }
+
+  async function onApple() {
+    if (!className.trim()) {
+      setError("Enter the class you are in charge of before continuing with Apple");
+      return;
+    }
+    setError(null);
+    setAppleLoading(true);
+    try {
+      sessionStorage.setItem("pt.pendingClass", className.trim());
+      const result = await lovable.auth.signInWithOAuth("apple", {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) {
+        setError("Apple sign-in failed. Please try again.");
+        return;
+      }
+      if (result.redirected) return;
+      const { data } = await supabase.auth.getUser();
+      const displayName =
+        (data.user?.user_metadata?.full_name as string | undefined) ??
+        data.user?.email ??
+        name.trim() ??
+        "Teacher";
+      setTeacher(displayName, className.trim());
+      navigate({ to: "/dashboard" });
+    } finally {
+      setAppleLoading(false);
+    }
+  }
+
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
