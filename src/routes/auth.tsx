@@ -30,6 +30,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [appleLoading, setAppleLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   // Complete Apple sign-in after a full-page redirect back to this route.
   useEffect(() => {
@@ -83,6 +84,36 @@ function AuthPage() {
       navigate({ to: "/dashboard" });
     } finally {
       setAppleLoading(false);
+    }
+  }
+
+  async function onGoogle() {
+    if (!className.trim()) {
+      setError("Enter the class you are in charge of before continuing with Google");
+      return;
+    }
+    setError(null);
+    setGoogleLoading(true);
+    try {
+      sessionStorage.setItem("pt.pendingClass", className.trim());
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) {
+        setError("Google sign-in failed. Please try again.");
+        return;
+      }
+      if (result.redirected) return;
+      const { data } = await supabase.auth.getUser();
+      const displayName =
+        (data.user?.user_metadata?.full_name as string | undefined) ??
+        data.user?.email ??
+        name.trim() ??
+        "Teacher";
+      setTeacher(displayName, className.trim());
+      navigate({ to: "/dashboard" });
+    } finally {
+      setGoogleLoading(false);
     }
   }
 
@@ -152,17 +183,36 @@ function AuthPage() {
             </div>
           </div>
 
-          <Button
-            type="button"
-            variant="outline"
-            size="lg"
-            className="w-full"
-            onClick={onApple}
-            disabled={appleLoading}
-          >
-            <Apple className="h-4 w-4" />
-            {appleLoading ? "Connecting…" : "Continue with Apple"}
-          </Button>
+          <div className="space-y-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="w-full"
+              onClick={onGoogle}
+              disabled={googleLoading || appleLoading}
+            >
+              <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5a5.6 5.6 0 0 1-2.4 3.6v3h3.9c2.3-2.1 3.5-5.2 3.5-8.8z" />
+                <path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.4 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9H1.4v3.1A12 12 0 0 0 12 24z" />
+                <path fill="#FBBC05" d="M5.4 14.4a7.2 7.2 0 0 1 0-4.6V6.7H1.4a12 12 0 0 0 0 10.8l4-3.1z" />
+                <path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4C17.9 1.2 15.2 0 12 0A12 12 0 0 0 1.4 6.7l4 3.1C6.3 6.9 8.9 4.8 12 4.8z" />
+              </svg>
+              {googleLoading ? "Connecting…" : "Continue with Google"}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="w-full"
+              onClick={onApple}
+              disabled={appleLoading || googleLoading}
+            >
+              <Apple className="h-4 w-4" />
+              {appleLoading ? "Connecting…" : "Continue with Apple"}
+            </Button>
+          </div>
 
         </form>
       </div>
