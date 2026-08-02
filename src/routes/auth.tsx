@@ -31,6 +31,21 @@ function AuthPage() {
   const [error, setError] = useState<string | null>(null);
   const [appleLoading, setAppleLoading] = useState(false);
 
+  // Complete Apple sign-in after a full-page redirect back to this route.
+  useEffect(() => {
+    const pendingClass = sessionStorage.getItem("pt.pendingClass");
+    if (!pendingClass) return;
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) return;
+      sessionStorage.removeItem("pt.pendingClass");
+      const displayName =
+        (data.user.user_metadata?.full_name as string | undefined) ?? data.user.email ?? "Teacher";
+      setTeacher(displayName, pendingClass);
+      navigate({ to: "/dashboard" });
+    });
+  }, [navigate]);
+
+
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     const result = signIn(name, className, password);
