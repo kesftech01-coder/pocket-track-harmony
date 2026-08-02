@@ -1,10 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { Wallet } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Wallet, Apple } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signIn } from "@/lib/pocket-track/store";
+import { signIn, setTeacher } from "@/lib/pocket-track/store";
+import { lovable } from "@/integrations/lovable/index";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -27,6 +29,22 @@ function AuthPage() {
   const [className, setClassName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [appleLoading, setAppleLoading] = useState(false);
+
+  // Complete Apple sign-in after a full-page redirect back to this route.
+  useEffect(() => {
+    const pendingClass = sessionStorage.getItem("pt.pendingClass");
+    if (!pendingClass) return;
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) return;
+      sessionStorage.removeItem("pt.pendingClass");
+      const displayName =
+        (data.user.user_metadata?.full_name as string | undefined) ?? data.user.email ?? "Teacher";
+      setTeacher(displayName, pendingClass);
+      navigate({ to: "/dashboard" });
+    });
+  }, [navigate]);
+
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,6 +55,37 @@ function AuthPage() {
     }
     navigate({ to: "/dashboard" });
   }
+
+  async function onApple() {
+    if (!className.trim()) {
+      setError("Enter the class you are in charge of before continuing with Apple");
+      return;
+    }
+    setError(null);
+    setAppleLoading(true);
+    try {
+      sessionStorage.setItem("pt.pendingClass", className.trim());
+      const result = await lovable.auth.signInWithOAuth("apple", {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) {
+        setError("Apple sign-in failed. Please try again.");
+        return;
+      }
+      if (result.redirected) return;
+      const { data } = await supabase.auth.getUser();
+      const displayName =
+        (data.user?.user_metadata?.full_name as string | undefined) ??
+        data.user?.email ??
+        name.trim() ??
+        "Teacher";
+      setTeacher(displayName, className.trim());
+      navigate({ to: "/dashboard" });
+    } finally {
+      setAppleLoading(false);
+    }
+  }
+
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
@@ -95,6 +144,26 @@ function AuthPage() {
           )}
 
           <Button type="submit" className="w-full" size="lg">Sign in</Button>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">or</span>
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            className="w-full"
+            onClick={onApple}
+            disabled={appleLoading}
+          >
+            <Apple className="h-4 w-4" />
+            {appleLoading ? "Connecting…" : "Continue with Apple"}
+          </Button>
+
         </form>
       </div>
     </div>

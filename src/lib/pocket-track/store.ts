@@ -89,6 +89,10 @@ export function signIn(name: string, className: string, password: string): { ok:
   return { ok: true };
 }
 
+export function setTeacher(name: string, className: string) {
+  write<Teacher>(KEYS.teacher, { name: name.trim(), className: className.trim() });
+}
+
 export function signOut() {
   if (typeof window === "undefined") return;
   localStorage.removeItem(KEYS.teacher);
