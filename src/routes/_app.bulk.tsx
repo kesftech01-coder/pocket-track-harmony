@@ -144,7 +144,7 @@ function BulkPage() {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Select value={classFilter} onValueChange={setClassFilter}>
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-[180px]" aria-label="Filter students by class">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -158,6 +158,7 @@ function BulkPage() {
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
+                      aria-label="Search students"
                       value={q}
                       onChange={(e) => setQ(e.target.value)}
                       placeholder="Search..."
