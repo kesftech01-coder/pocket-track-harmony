@@ -87,6 +87,7 @@ function SimulatePage() {
         <CardContent>
           <form onSubmit={submit} className="space-y-4">
             <Textarea
+              aria-label="M-Pesa confirmation message"
               value={raw}
               onChange={(e) => setRaw(e.target.value)}
               rows={5}
