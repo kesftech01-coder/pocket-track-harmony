@@ -14,28 +14,16 @@ export type PaymentIngestInput = {
 export type PaymentStatus = 'pending' | 'matched' | 'review' | 'unmatched' | 'reversed';
 
 /**
- * Inserts a payment notification only. Matching is intentionally performed by
- * the server-side match function so the browser cannot manufacture ledger credits.
+ * Payment ingestion is intentionally routed through a server-side Edge Function.
+ * Browser clients never receive permission to insert financial records directly.
  */
 export async function ingestPayment(input: PaymentIngestInput) {
-  const { data, error } = await supabase
-    .from('payments')
-    .insert({
-      school_id: input.schoolId,
-      external_transaction_id: input.externalTransactionId,
-      sender_name: input.senderName ?? null,
-      sender_phone: input.senderPhone,
-      amount: input.amount,
-      currency: input.currency ?? 'KES',
-      payment_time: input.paymentTime ?? new Date().toISOString(),
-      raw_message: input.rawMessage ?? null,
-      status: 'pending',
-    })
-    .select()
-    .single();
+  const { data, error } = await supabase.functions.invoke('ingest-payment', {
+    body: input,
+  });
 
   if (error) throw error;
-  return data;
+  return data as { paymentId: string; status: PaymentStatus; duplicate?: boolean };
 }
 
 export async function getStudentBalance(studentId: string) {
