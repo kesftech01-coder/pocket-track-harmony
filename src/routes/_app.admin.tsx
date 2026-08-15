@@ -127,6 +127,7 @@ function AdminPage() {
                     <Button
                       variant="ghost"
                       size="icon"
+                      aria-label={`Remove ${s.name}`}
                       onClick={() => {
                         if (confirm(`Remove ${s.name}?`)) deleteStudent(s.id);
                       }}

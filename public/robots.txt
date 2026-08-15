@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /students
+Disallow: /admin
+Disallow: /mpesa
+Disallow: /bulk
+Disallow: /simulate
+
+Sitemap: https://pocket-track-harmony.lovable.app/sitemap.xml
