@@ -8,8 +8,16 @@ import { signIn, setTeacher } from "@/lib/pocket-track/store";
 import { lovable } from "@/integrations/lovable/index";
 import { supabase } from "@/integrations/supabase/client";
 
+// Only same-origin relative paths may be used as a post-sign-in destination.
+function safeNext(next: string | undefined): string | null {
+  if (!next || !next.startsWith("/") || next.startsWith("//")) return null;
+  return next;
+}
+
 export const Route = createFileRoute("/auth")({
   ssr: false,
+  validateSearch: (s: Record<string, unknown>): { next?: string } =>
+    typeof s.next === "string" ? { next: s.next } : {},
   head: () => ({
     meta: [
       { title: "Sign in · Pocket Track" },
@@ -25,6 +33,24 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
+  const destination = safeNext(next);
+
+  function goOn() {
+    if (destination) {
+      window.location.href = destination;
+      return;
+    }
+    navigate({ to: "/dashboard" });
+  }
+
+  // Return here after the provider round-trip so the destination survives.
+  function oauthRedirectUri() {
+    const url = new URL("/auth", window.location.origin);
+    if (destination) url.searchParams.set("next", destination);
+    return url.toString();
+  }
+
   const [name, setName] = useState("");
   const [className, setClassName] = useState("");
   const [password, setPassword] = useState("");
@@ -42,8 +68,9 @@ function AuthPage() {
       const displayName =
         (data.user.user_metadata?.full_name as string | undefined) ?? data.user.email ?? "Teacher";
       setTeacher(displayName, pendingClass);
-      navigate({ to: "/dashboard" });
+      goOn();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
 
@@ -54,7 +81,7 @@ function AuthPage() {
       setError(result.error);
       return;
     }
-    navigate({ to: "/dashboard" });
+    goOn();
   }
 
   async function onApple() {
@@ -67,7 +94,7 @@ function AuthPage() {
     try {
       sessionStorage.setItem("pt.pendingClass", className.trim());
       const result = await lovable.auth.signInWithOAuth("apple", {
-        redirect_uri: window.location.origin,
+        redirect_uri: oauthRedirectUri(),
       });
       if (result.error) {
         setError("Apple sign-in failed. Please try again.");
@@ -81,7 +108,7 @@ function AuthPage() {
         name.trim() ??
         "Teacher";
       setTeacher(displayName, className.trim());
-      navigate({ to: "/dashboard" });
+      goOn();
     } finally {
       setAppleLoading(false);
     }
@@ -97,7 +124,7 @@ function AuthPage() {
     try {
       sessionStorage.setItem("pt.pendingClass", className.trim());
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+        redirect_uri: oauthRedirectUri(),
       });
       if (result.error) {
         setError("Google sign-in failed. Please try again.");
@@ -111,7 +138,7 @@ function AuthPage() {
         name.trim() ??
         "Teacher";
       setTeacher(displayName, className.trim());
-      navigate({ to: "/dashboard" });
+      goOn();
     } finally {
       setGoogleLoading(false);
     }

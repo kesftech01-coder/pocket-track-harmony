@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.2",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://prrfekfbsebpgrurizwe.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "pocket-track-pro",
+      "version": "0.1.0",
+      "title": "Pocket Track Pro"
+    },
+    "tools": [
+      {
+        "name": "app_overview",
+        "title": "Pocket Track overview",
+        "description": "Describe what Pocket Track does, the screens a teacher can use, and how M-Pesa deposits are reconciled to students.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "parse_mpesa_message",
+        "title": "Parse M-Pesa message",
+        "description": "Read a raw M-Pesa confirmation SMS and extract the transaction code, amount in KES, sender name and normalised sender phone number. Read-only: it never moves money and never changes any Pocket Track record.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string",
+              "description": "The raw M-Pesa confirmation SMS text, exactly as received."
+            }
+          },
+          "required": [
+            "message"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
