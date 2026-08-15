@@ -68,8 +68,9 @@ function AuthPage() {
       const displayName =
         (data.user.user_metadata?.full_name as string | undefined) ?? data.user.email ?? "Teacher";
       setTeacher(displayName, pendingClass);
-      navigate({ to: "/dashboard" });
+      goOn();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
 
@@ -80,7 +81,7 @@ function AuthPage() {
       setError(result.error);
       return;
     }
-    navigate({ to: "/dashboard" });
+    goOn();
   }
 
   async function onApple() {
@@ -93,7 +94,7 @@ function AuthPage() {
     try {
       sessionStorage.setItem("pt.pendingClass", className.trim());
       const result = await lovable.auth.signInWithOAuth("apple", {
-        redirect_uri: window.location.origin,
+        redirect_uri: oauthRedirectUri(),
       });
       if (result.error) {
         setError("Apple sign-in failed. Please try again.");
@@ -107,7 +108,7 @@ function AuthPage() {
         name.trim() ??
         "Teacher";
       setTeacher(displayName, className.trim());
-      navigate({ to: "/dashboard" });
+      goOn();
     } finally {
       setAppleLoading(false);
     }
@@ -123,7 +124,7 @@ function AuthPage() {
     try {
       sessionStorage.setItem("pt.pendingClass", className.trim());
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+        redirect_uri: oauthRedirectUri(),
       });
       if (result.error) {
         setError("Google sign-in failed. Please try again.");
@@ -137,7 +138,7 @@ function AuthPage() {
         name.trim() ??
         "Teacher";
       setTeacher(displayName, className.trim());
-      navigate({ to: "/dashboard" });
+      goOn();
     } finally {
       setGoogleLoading(false);
     }
