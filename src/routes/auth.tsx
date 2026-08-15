@@ -33,6 +33,24 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
+  const destination = safeNext(next);
+
+  function goOn() {
+    if (destination) {
+      window.location.href = destination;
+      return;
+    }
+    navigate({ to: "/dashboard" });
+  }
+
+  // Return here after the provider round-trip so the destination survives.
+  function oauthRedirectUri() {
+    const url = new URL("/auth", window.location.origin);
+    if (destination) url.searchParams.set("next", destination);
+    return url.toString();
+  }
+
   const [name, setName] = useState("");
   const [className, setClassName] = useState("");
   const [password, setPassword] = useState("");
