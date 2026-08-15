@@ -141,7 +141,7 @@ function UnmatchedCard({
         </div>
         <div className="flex flex-wrap gap-2 items-center">
           <Select value={selected ?? undefined} onValueChange={setSelected}>
-            <SelectTrigger className="w-full sm:w-auto sm:min-w-[240px]">
+            <SelectTrigger className="w-full sm:w-auto sm:min-w-[240px]" aria-label="Assign this deposit to a student">
               <SelectValue placeholder="Assign to student..." />
             </SelectTrigger>
             <SelectContent>
