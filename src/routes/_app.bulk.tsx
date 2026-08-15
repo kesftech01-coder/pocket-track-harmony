@@ -350,6 +350,7 @@ function StudentRow({
       </div>
       {mode === "custom" && (
         <Input
+          aria-label={`Amount for ${student.name}`}
           type="number"
           min="0"
           inputMode="numeric"
