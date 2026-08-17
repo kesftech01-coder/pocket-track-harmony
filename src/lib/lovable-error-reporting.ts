@@ -25,11 +25,14 @@ declare global {
 
 export function reportLovableError(error: unknown, context: Record<string, unknown> = {}) {
   if (typeof window === "undefined") return;
-  window.__lovableEvents?.captureException?.(
+  
+  const w = window as typeof globalThis.window;
+  
+  w.__lovableEvents?.captureException?.(
     error,
     {
       source: "react_error_boundary",
-      route: window.location.pathname,
+      route: w.location.pathname,
       ...context,
     },
     {
@@ -49,9 +52,9 @@ export function reportLovableError(error: unknown, context: Record<string, unkno
       : error instanceof Error
         ? error.message
         : String(error);
-  window.__lovableReportRuntimeError?.({
+  w.__lovableReportRuntimeError?.({
     message,
     stack: error instanceof Error ? error.stack : undefined,
-    filename: window.location.pathname,
+    filename: w.location.pathname,
   });
 }
