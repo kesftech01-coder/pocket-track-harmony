@@ -99,10 +99,10 @@ function SimulatePage() {
                 <Zap className="h-4 w-4" /> Process message
               </Button>
               <Button type="button" variant="outline" size="sm" onClick={() => useSample(true)} disabled={students.length === 0}>
-                Load known-parent sample
+                Load known-parent  massage
               </Button>
               <Button type="button" variant="outline" size="sm" onClick={() => useSample(false)}>
-                Load unknown-sender sample
+                Load unknown-sender  massage
               </Button>
             </div>
             {result?.kind === "matched" && (
