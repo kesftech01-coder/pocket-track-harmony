@@ -14,13 +14,184 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      disbursements: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          mpesa_code: string | null
+          note: string
+          source: string | null
+          student_id: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          mpesa_code?: string | null
+          note?: string
+          source?: string | null
+          student_id: string
+          type: string
+          user_id?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          mpesa_code?: string | null
+          note?: string
+          source?: string | null
+          student_id?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disbursements_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sms_ingest_tokens: {
+        Row: {
+          created_at: string
+          token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          token?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      students: {
+        Row: {
+          admission_no: string
+          balance: number
+          class_name: string
+          created_at: string
+          id: string
+          name: string
+          parent_phone: string
+          user_id: string
+        }
+        Insert: {
+          admission_no: string
+          balance?: number
+          class_name: string
+          created_at?: string
+          id?: string
+          name: string
+          parent_phone: string
+          user_id?: string
+        }
+        Update: {
+          admission_no?: string
+          balance?: number
+          class_name?: string
+          created_at?: string
+          id?: string
+          name?: string
+          parent_phone?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      unmatched_messages: {
+        Row: {
+          amount: number
+          id: string
+          mpesa_code: string
+          raw: string
+          received_at: string
+          resolved: boolean
+          sender_name: string
+          sender_phone: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          id?: string
+          mpesa_code?: string
+          raw: string
+          received_at?: string
+          resolved?: boolean
+          sender_name?: string
+          sender_phone?: string
+          user_id?: string
+        }
+        Update: {
+          amount?: number
+          id?: string
+          mpesa_code?: string
+          raw?: string
+          received_at?: string
+          resolved?: boolean
+          sender_name?: string
+          sender_phone?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      assign_unmatched: {
+        Args: { p_message_id: string; p_student_id: string }
+        Returns: Json
+      }
+      ingest_mpesa_for_user: {
+        Args: {
+          p_amount: number
+          p_mpesa_code: string
+          p_raw: string
+          p_sender_name: string
+          p_sender_phone: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      record_disbursement: {
+        Args: {
+          p_amount: number
+          p_mpesa_code?: string
+          p_note?: string
+          p_source?: string
+          p_student_id: string
+          p_type: string
+        }
+        Returns: {
+          amount: number
+          created_at: string
+          id: string
+          mpesa_code: string | null
+          note: string
+          source: string | null
+          student_id: string
+          type: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "disbursements"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       [_ in never]: never
