@@ -280,7 +280,6 @@ export async function recordWithdrawal(studentId: string, amount: number, note: 
     p_amount: amount,
     p_note: note,
     p_source: "Manual",
-    p_mpesa_code: null,
   });
   await loadAll();
   if (error) throw new Error(error.message);
@@ -327,7 +326,6 @@ export async function recordWithdrawalsBulk(
       p_amount: e.amount,
       p_note: note.trim(),
       p_source: "Bulk",
-      p_mpesa_code: null,
     });
     if (error) failures.push(`${byId.get(e.studentId)?.name ?? "Student"}: ${error.message}`);
   }
@@ -381,7 +379,7 @@ export async function ingestMpesa(raw: string): Promise<{
       p_amount: parsed.amount,
       p_note: `From ${parsed.senderName}`,
       p_source: `M-Pesa ${parsed.mpesaCode}`,
-      p_mpesa_code: parsed.mpesaCode === "UNKNOWN" ? null : parsed.mpesaCode,
+      p_mpesa_code: parsed.mpesaCode === "UNKNOWN" ? undefined : parsed.mpesaCode,
     });
     await loadAll();
     if (error) {
