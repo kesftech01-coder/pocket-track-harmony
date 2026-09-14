@@ -4,7 +4,7 @@ import { Wallet, Apple } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signIn, setTeacher } from "@/lib/pocket-track/store";
+import { signInWithEmail, signUpWithEmail, setTeacher } from "@/lib/pocket-track/store";
 import { lovable } from "@/integrations/lovable/index";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -51,14 +51,17 @@ function AuthPage() {
     return url.toString();
   }
 
-  const [name, setName] = useState("");
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [email, setEmail] = useState("");
   const [className, setClassName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
   const [appleLoading, setAppleLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  // Complete Apple sign-in after a full-page redirect back to this route.
+  // Complete a social sign-in after a full-page redirect back to this route.
   useEffect(() => {
     const pendingClass = sessionStorage.getItem("pt.pendingClass");
     if (!pendingClass) return;
@@ -73,15 +76,35 @@ function AuthPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
-
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const result = signIn(name, className, password);
-    if (!result.ok) {
-      setError(result.error);
-      return;
+    setError(null);
+    setInfo(null);
+    setBusy(true);
+    try {
+      if (mode === "signup") {
+        const result = await signUpWithEmail(email, className, password);
+        if (!result.ok) {
+          setError(result.error);
+          return;
+        }
+        if (result.needsConfirmation) {
+          setInfo("Check your email to confirm your address, then sign in.");
+          setMode("signin");
+          return;
+        }
+        goOn();
+        return;
+      }
+      const result = await signInWithEmail(email, className, password);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      goOn();
+    } finally {
+      setBusy(false);
     }
-    goOn();
   }
 
   async function onApple() {
@@ -103,10 +126,7 @@ function AuthPage() {
       if (result.redirected) return;
       const { data } = await supabase.auth.getUser();
       const displayName =
-        (data.user?.user_metadata?.full_name as string | undefined) ??
-        data.user?.email ??
-        name.trim() ??
-        "Teacher";
+        (data.user?.user_metadata?.full_name as string | undefined) ?? data.user?.email ?? "Teacher";
       setTeacher(displayName, className.trim());
       goOn();
     } finally {
@@ -133,17 +153,13 @@ function AuthPage() {
       if (result.redirected) return;
       const { data } = await supabase.auth.getUser();
       const displayName =
-        (data.user?.user_metadata?.full_name as string | undefined) ??
-        data.user?.email ??
-        name.trim() ??
-        "Teacher";
+        (data.user?.user_metadata?.full_name as string | undefined) ?? data.user?.email ?? "Teacher";
       setTeacher(displayName, className.trim());
       goOn();
     } finally {
       setGoogleLoading(false);
     }
   }
-
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
@@ -163,7 +179,7 @@ function AuthPage() {
             parents peace of mind — without ever touching their money.
           </p>
         </div>
-        <p className="text-xs text-white/60">MVP · Local demo build</p>
+        <p className="text-xs text-white/60">Your class records are saved securely to your account.</p>
       </div>
 
       <div className="flex items-center justify-center p-6 sm:p-12">
@@ -175,14 +191,26 @@ function AuthPage() {
             <span className="text-lg font-semibold tracking-tight">Pocket Track</span>
           </div>
           <div>
-            <h2 className="text-2xl font-semibold tracking-tight">Welcome back, teacher</h2>
-            <p className="text-sm text-muted-foreground mt-1">Sign in to manage your class.</p>
+            <h2 className="text-2xl font-semibold tracking-tight">
+              {mode === "signin" ? "Welcome back, teacher" : "Create your teacher account"}
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              {mode === "signin" ? "Sign in to manage your class." : "Your class records stay private to you."}
+            </p>
           </div>
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Teacher name</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Mr. Kariuki" required />
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="teacher@school.ac.ke"
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="class">Class in charge of</Label>
@@ -190,8 +218,15 @@ function AuthPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
-              <p className="text-xs text-muted-foreground">Demo password: <code className="font-mono">teacher123</code></p>
+              <Input
+                id="password"
+                type="password"
+                autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+              />
             </div>
           </div>
 
@@ -200,8 +235,28 @@ function AuthPage() {
               {error}
             </div>
           )}
+          {info && (
+            <div className="rounded-md bg-success/10 text-success text-sm px-3 py-2">{info}</div>
+          )}
 
-          <Button type="submit" className="w-full" size="lg">Sign in</Button>
+          <Button type="submit" className="w-full" size="lg" disabled={busy}>
+            {busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
+          </Button>
+
+          <p className="text-sm text-muted-foreground text-center">
+            {mode === "signin" ? "New here? " : "Already have an account? "}
+            <button
+              type="button"
+              className="text-primary font-medium hover:underline"
+              onClick={() => {
+                setMode(mode === "signin" ? "signup" : "signin");
+                setError(null);
+                setInfo(null);
+              }}
+            >
+              {mode === "signin" ? "Create an account" : "Sign in instead"}
+            </button>
+          </p>
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
