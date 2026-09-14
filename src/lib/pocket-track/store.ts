@@ -267,8 +267,7 @@ export async function recordDeposit(studentId: string, amount: number, note: str
     p_type: "deposit",
     p_amount: amount,
     p_note: note,
-    p_source: source ?? null,
-    p_mpesa_code: null,
+    p_source: source ?? undefined,
   });
   await loadAll();
   if (error) throw new Error(error.message);
