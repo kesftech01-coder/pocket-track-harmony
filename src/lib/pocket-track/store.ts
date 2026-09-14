@@ -230,7 +230,12 @@ export async function addStudent(input: {
 }
 
 export async function updateStudent(id: string, patch: Partial<Omit<Student, "id" | "balance">>) {
-  const row: Record<string, string> = {};
+  const row: {
+    admission_no?: string;
+    name?: string;
+    class_name?: string;
+    parent_phone?: string;
+  } = {};
   if (patch.admissionNo !== undefined) row.admission_no = patch.admissionNo.trim();
   if (patch.name !== undefined) row.name = patch.name.trim();
   if (patch.className !== undefined) row.class_name = patch.className.trim();
