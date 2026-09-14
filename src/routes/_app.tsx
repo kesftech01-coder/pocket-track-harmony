@@ -1,19 +1,20 @@
 import { createFileRoute, Link, Outlet, redirect, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Users, Inbox, LogOut, Wallet, MessageSquarePlus, Receipt } from "lucide-react";
+import { LayoutDashboard, Users, Inbox, LogOut, Wallet, MessageSquarePlus, Receipt, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { getTeacher, signOut, getUnmatched } from "@/lib/pocket-track/store";
+import { getTeacher, signOut, getUnmatched, loadAll, subscribeToCloudChanges, setTeacher } from "@/lib/pocket-track/store";
 import { useStoreSync } from "@/lib/pocket-track/use-store";
-import { seedIfEmpty } from "@/lib/pocket-track/store";
+import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 
 export const Route = createFileRoute("/_app")({
   ssr: false,
-  beforeLoad: () => {
-    if (typeof window === "undefined") return;
-    if (!localStorage.getItem("pt.teacher")) {
-      throw redirect({ to: "/auth" });
+  beforeLoad: async ({ location }) => {
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) {
+      throw redirect({ to: "/auth", search: { next: location.href } });
     }
+    return { user: data.user };
   },
   component: AppLayout,
 });
@@ -26,16 +27,25 @@ function AppLayout() {
   const unmatchedCount = getUnmatched().filter((m) => !m.resolved).length;
 
   useEffect(() => {
-    seedIfEmpty();
+    void loadAll();
+    const unsubscribe = subscribeToCloudChanges();
+    if (!getTeacher()) {
+      void supabase.auth.getUser().then(({ data }) => {
+        if (!data.user) return;
+        const displayName =
+          (data.user.user_metadata?.full_name as string | undefined) ?? data.user.email ?? "Teacher";
+        setTeacher(displayName, "My class");
+      });
+    }
+    return unsubscribe;
   }, []);
-
-  if (!teacher) return null;
 
   const nav = [
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { to: "/bulk", label: "Bulk disbursement", icon: Receipt },
     { to: "/admin", label: "Administration", icon: Users },
     { to: "/mpesa", label: "M-Pesa Inbox", icon: Inbox, badge: unmatchedCount },
+    { to: "/sms", label: "SMS forwarding", icon: Smartphone },
     { to: "/simulate", label: "Simulate SMS", icon: MessageSquarePlus },
   ] as const;
 
@@ -49,14 +59,16 @@ function AppLayout() {
             </div>
             <div className="leading-tight">
               <div className="font-semibold tracking-tight">Pocket Track</div>
-              <div className="text-xs text-muted-foreground">{teacher.className} · {teacher.name}</div>
+              <div className="text-xs text-muted-foreground">
+                {teacher ? `${teacher.className} · ${teacher.name}` : "Loading…"}
+              </div>
             </div>
           </Link>
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => {
-              signOut();
+            onClick={async () => {
+              await signOut();
               navigate({ to: "/auth" });
             }}
           >
