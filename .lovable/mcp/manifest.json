@@ -55,6 +55,101 @@
           ]
         },
         "outputSchema": null
+      },
+      {
+        "name": "list_students",
+        "title": "List students and balances",
+        "description": "List the signed-in teacher's students with admission number, class, parent phone and current pocket-money balance in KES. Read-only.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "search": {
+              "description": "Optional filter matched against student name, admission number or parent phone.",
+              "type": "string"
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "record_mpesa_message",
+        "title": "Record an M-Pesa deposit",
+        "description": "Take a raw M-Pesa confirmation SMS and file it in Pocket Track for the signed-in teacher. If the sender's phone matches a student's parent phone, that student's balance is credited; otherwise the message is parked in the teacher's inbox for manual placement. Duplicate transaction codes are ignored.",
+        "annotations": {
+          "readOnlyHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string",
+              "minLength": 10,
+              "description": "The raw M-Pesa confirmation SMS text, exactly as received."
+            }
+          },
+          "required": [
+            "message"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_unmatched_deposits",
+        "title": "List unplaced deposits",
+        "description": "List deposits waiting in the signed-in teacher's inbox because the sender's phone number does not match any student's parent phone. Read-only.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "place_unmatched_deposit",
+        "title": "Place an unplaced deposit",
+        "description": "Credit a waiting deposit from the signed-in teacher's inbox to a specific student, using the deposit id from list_unmatched_deposits and the student id from list_students.",
+        "annotations": {
+          "readOnlyHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "depositId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "Deposit id from list_unmatched_deposits."
+            },
+            "studentId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "Student id from list_students."
+            }
+          },
+          "required": [
+            "depositId",
+            "studentId"
+          ]
+        },
+        "outputSchema": null
       }
     ]
   }

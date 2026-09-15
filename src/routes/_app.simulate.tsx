@@ -40,9 +40,9 @@ function SimulatePage() {
     | null
   >(null);
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
-    const res = ingestMpesa(raw);
+    const res = await ingestMpesa(raw);
     if (res.error) {
       setResult({ kind: "error", message: res.error });
       return;

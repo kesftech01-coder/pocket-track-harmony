@@ -101,14 +101,14 @@ function BulkPage() {
     setSelected(next);
   }
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     setErrors([]);
     setSuccess(null);
     const payload = entries
       .filter((entry) => entry.amount > 0)
       .map((entry) => ({ studentId: entry.student.id, amount: entry.amount }));
-    const result = recordWithdrawalsBulk(payload, note);
+    const result = await recordWithdrawalsBulk(payload, note);
     if (!result.ok) {
       setErrors(result.errors);
       return;
