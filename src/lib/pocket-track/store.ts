@@ -443,14 +443,29 @@ export async function dismissUnmatched(messageId: string) {
 export async function getIngestToken(): Promise<string | null> {
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) return null;
-  const existing = await supabase.from("sms_ingest_tokens").select("token").maybeSingle();
+  const userId = userData.user.id;
+
+  const existing = await supabase
+    .from("sms_ingest_tokens")
+    .select("token")
+    .eq("user_id", userId)
+    .maybeSingle();
   if (existing.data?.token) return existing.data.token;
+
   const created = await supabase
     .from("sms_ingest_tokens")
-    .insert({ user_id: userData.user.id })
+    .insert({ user_id: userId })
     .select("token")
-    .single();
-  return created.data?.token ?? null;
+    .maybeSingle();
+  if (created.data?.token) return created.data.token;
+
+  // A parallel request may have created the row first; read it back.
+  const retry = await supabase
+    .from("sms_ingest_tokens")
+    .select("token")
+    .eq("user_id", userId)
+    .maybeSingle();
+  return retry.data?.token ?? null;
 }
 
 export async function resetIngestToken(): Promise<string | null> {
