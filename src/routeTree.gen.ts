@@ -13,6 +13,7 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppSmsRouteImport } from './routes/_app.sms'
 import { Route as AppSimulateRouteImport } from './routes/_app.simulate'
 import { Route as AppMpesaRouteImport } from './routes/_app.mpesa'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
@@ -43,6 +44,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppSmsRoute = AppSmsRouteImport.update({
+  id: '/sms',
+  path: '/sms',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppSimulateRoute = AppSimulateRouteImport.update({
   id: '/simulate',
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AppDashboardRoute
   '/mpesa': typeof AppMpesaRoute
   '/simulate': typeof AppSimulateRoute
+  '/sms': typeof AppSmsRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/students/$id': typeof AppStudentsIdRoute
@@ -130,6 +137,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AppDashboardRoute
   '/mpesa': typeof AppMpesaRoute
   '/simulate': typeof AppSimulateRoute
+  '/sms': typeof AppSmsRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/students/$id': typeof AppStudentsIdRoute
@@ -148,6 +156,7 @@ export interface FileRoutesById {
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/mpesa': typeof AppMpesaRoute
   '/_app/simulate': typeof AppSimulateRoute
+  '/_app/sms': typeof AppSmsRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_app/students/$id': typeof AppStudentsIdRoute
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/mpesa'
     | '/simulate'
+    | '/sms'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/students/$id'
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/mpesa'
     | '/simulate'
+    | '/sms'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/students/$id'
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '/_app/dashboard'
     | '/_app/mpesa'
     | '/_app/simulate'
+    | '/_app/sms'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/_app/students/$id'
@@ -246,6 +258,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/sms': {
+      id: '/_app/sms'
+      path: '/sms'
+      fullPath: '/sms'
+      preLoaderRoute: typeof AppSmsRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/simulate': {
       id: '/_app/simulate'
@@ -333,6 +352,7 @@ interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppMpesaRoute: typeof AppMpesaRoute
   AppSimulateRoute: typeof AppSimulateRoute
+  AppSmsRoute: typeof AppSmsRoute
   AppStudentsIdRoute: typeof AppStudentsIdRoute
 }
 
@@ -342,6 +362,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppMpesaRoute: AppMpesaRoute,
   AppSimulateRoute: AppSimulateRoute,
+  AppSmsRoute: AppSmsRoute,
   AppStudentsIdRoute: AppStudentsIdRoute,
 }
 
