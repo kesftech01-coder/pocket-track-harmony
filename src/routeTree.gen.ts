@@ -18,6 +18,7 @@ import { Route as AppSimulateRouteImport } from './routes/_app.simulate'
 import { Route as AppMpesaRouteImport } from './routes/_app.mpesa'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppBulkRouteImport } from './routes/_app.bulk'
+import { Route as AppBroadcastRouteImport } from './routes/_app.broadcast'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
@@ -70,6 +71,11 @@ const AppBulkRoute = AppBulkRouteImport.update({
   path: '/bulk',
   getParentRoute: () => AppRoute,
 } as any)
+const AppBroadcastRoute = AppBroadcastRouteImport.update({
+  id: '/broadcast',
+  path: '/broadcast',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAdminRoute = AppAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin': typeof AppAdminRoute
+  '/broadcast': typeof AppBroadcastRoute
   '/bulk': typeof AppBulkRoute
   '/dashboard': typeof AppDashboardRoute
   '/mpesa': typeof AppMpesaRoute
@@ -133,6 +140,7 @@ export interface FileRoutesByTo {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin': typeof AppAdminRoute
+  '/broadcast': typeof AppBroadcastRoute
   '/bulk': typeof AppBulkRoute
   '/dashboard': typeof AppDashboardRoute
   '/mpesa': typeof AppMpesaRoute
@@ -152,6 +160,7 @@ export interface FileRoutesById {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_app/admin': typeof AppAdminRoute
+  '/_app/broadcast': typeof AppBroadcastRoute
   '/_app/bulk': typeof AppBulkRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/mpesa': typeof AppMpesaRoute
@@ -171,6 +180,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin'
+    | '/broadcast'
     | '/bulk'
     | '/dashboard'
     | '/mpesa'
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin'
+    | '/broadcast'
     | '/bulk'
     | '/dashboard'
     | '/mpesa'
@@ -206,6 +217,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/_app/admin'
+    | '/_app/broadcast'
     | '/_app/bulk'
     | '/_app/dashboard'
     | '/_app/mpesa'
@@ -294,6 +306,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBulkRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/broadcast': {
+      id: '/_app/broadcast'
+      path: '/broadcast'
+      fullPath: '/broadcast'
+      preLoaderRoute: typeof AppBroadcastRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/admin': {
       id: '/_app/admin'
       path: '/admin'
@@ -348,6 +367,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRoute
+  AppBroadcastRoute: typeof AppBroadcastRoute
   AppBulkRoute: typeof AppBulkRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppMpesaRoute: typeof AppMpesaRoute
@@ -358,6 +378,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAdminRoute: AppAdminRoute,
+  AppBroadcastRoute: AppBroadcastRoute,
   AppBulkRoute: AppBulkRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppMpesaRoute: AppMpesaRoute,
