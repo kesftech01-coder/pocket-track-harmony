@@ -14,6 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
+      broadcast_recipients: {
+        Row: {
+          body: string
+          broadcast_id: string
+          created_at: string
+          error: string | null
+          id: string
+          phone: string
+          status: string
+          student_id: string | null
+          student_name: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          broadcast_id: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          phone: string
+          status?: string
+          student_id?: string | null
+          student_name?: string
+          user_id?: string
+        }
+        Update: {
+          body?: string
+          broadcast_id?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          phone?: string
+          status?: string
+          student_id?: string | null
+          student_name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "broadcast_recipients_broadcast_id_fkey"
+            columns: ["broadcast_id"]
+            isOneToOne: false
+            referencedRelation: "broadcasts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "broadcast_recipients_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      broadcasts: {
+        Row: {
+          created_at: string
+          failed_count: number
+          id: string
+          sent_count: number
+          template: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          failed_count?: number
+          id?: string
+          sent_count?: number
+          template: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          failed_count?: number
+          id?: string
+          sent_count?: number
+          template?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       disbursements: {
         Row: {
           amount: number
