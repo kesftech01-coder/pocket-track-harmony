@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Send, Megaphone } from "lucide-react";
 import { toast } from "sonner";
-import { useStore } from "@/lib/pocket-track/use-store";
+import { useStoreSync } from "@/lib/pocket-track/use-store";
 import { getStudents, formatKES } from "@/lib/pocket-track/store";
 import { supabase } from "@/integrations/supabase/client";
 import { sendBroadcast, fillTemplate } from "@/lib/pocket-track/broadcast.functions";
@@ -49,7 +49,7 @@ type HistoryRow = {
 };
 
 function BroadcastPage() {
-  useStore();
+  useStoreSync();
   const students = getStudents();
   const send = useServerFn(sendBroadcast);
 

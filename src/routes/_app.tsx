@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, redirect, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Users, Inbox, LogOut, Wallet, MessageSquarePlus, Receipt, Smartphone } from "lucide-react";
+import { LayoutDashboard, Users, Inbox, LogOut, Wallet, MessageSquarePlus, Receipt, Smartphone, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getTeacher, signOut, getUnmatched, loadAll, subscribeToCloudChanges, setTeacher } from "@/lib/pocket-track/store";
@@ -46,6 +46,7 @@ function AppLayout() {
     { to: "/admin", label: "Administration", icon: Users },
     { to: "/mpesa", label: "M-Pesa Inbox", icon: Inbox, badge: unmatchedCount },
     { to: "/sms", label: "SMS forwarding", icon: Smartphone },
+    { to: "/broadcast", label: "SMS broadcast", icon: Megaphone },
     { to: "/simulate", label: "Simulate SMS", icon: MessageSquarePlus },
   ] as const;
 
