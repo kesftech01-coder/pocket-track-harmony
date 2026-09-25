@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, redirect, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Users, Inbox, LogOut, Wallet, MessageSquarePlus, Receipt, Smartphone, Megaphone } from "lucide-react";
+import { LayoutDashboard, ClipboardList, Users, Inbox, LogOut, Wallet, MessageSquarePlus, Receipt, Smartphone, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getTeacher, signOut, getUnmatched, loadAll, subscribeToCloudChanges, setTeacher } from "@/lib/pocket-track/store";
@@ -42,6 +42,7 @@ function AppLayout() {
 
   const nav = [
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/students", label: "Student list", icon: ClipboardList },
     { to: "/bulk", label: "Bulk disbursement", icon: Receipt },
     { to: "/admin", label: "Administration", icon: Users },
     { to: "/mpesa", label: "M-Pesa Inbox", icon: Inbox, badge: unmatchedCount },

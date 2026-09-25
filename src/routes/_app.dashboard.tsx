@@ -50,7 +50,7 @@ function Dashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">Students</h1>
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">Dashboard</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Balances update automatically when parents send money to your M-Pesa number.
         </p>

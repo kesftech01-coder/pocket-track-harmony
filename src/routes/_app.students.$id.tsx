@@ -60,8 +60,8 @@ function StudentPage() {
 
   return (
     <div className="space-y-6">
-      <Link to="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="h-4 w-4" /> Back to students
+      <Link to="/students" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="h-4 w-4" /> Back to student list
       </Link>
 
       <Card className="shadow-soft overflow-hidden">

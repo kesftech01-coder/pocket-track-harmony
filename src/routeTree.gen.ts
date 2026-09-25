@@ -22,6 +22,7 @@ import { Route as AppBroadcastRouteImport } from './routes/_app.broadcast'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
+import { Route as AppStudentsIndexRouteImport } from './routes/_app.students.index'
 import { Route as ApiPublicSmsRouteImport } from './routes/api/public/sms'
 import { Route as AppStudentsIdRouteImport } from './routes/_app.students.$id'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
@@ -93,6 +94,11 @@ const Char91DotmcpChar93ListToolsRoute =
     path: '/.mcp/list-tools',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AppStudentsIndexRoute = AppStudentsIndexRouteImport.update({
+  id: '/students/',
+  path: '/students/',
+  getParentRoute: () => AppRoute,
+} as any)
 const ApiPublicSmsRoute = ApiPublicSmsRouteImport.update({
   id: '/api/public/sms',
   path: '/api/public/sms',
@@ -132,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/students/$id': typeof AppStudentsIdRoute
   '/api/public/sms': typeof ApiPublicSmsRoute
+  '/students/': typeof AppStudentsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -150,6 +157,7 @@ export interface FileRoutesByTo {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/students/$id': typeof AppStudentsIdRoute
   '/api/public/sms': typeof ApiPublicSmsRoute
+  '/students': typeof AppStudentsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -170,6 +178,7 @@ export interface FileRoutesById {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_app/students/$id': typeof AppStudentsIdRoute
   '/api/public/sms': typeof ApiPublicSmsRoute
+  '/_app/students/': typeof AppStudentsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -190,6 +199,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/students/$id'
     | '/api/public/sms'
+    | '/students/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/students/$id'
     | '/api/public/sms'
+    | '/students'
   id:
     | '__root__'
     | '/'
@@ -227,6 +238,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/_app/students/$id'
     | '/api/public/sms'
+    | '/_app/students/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -334,6 +346,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/students/': {
+      id: '/_app/students/'
+      path: '/students'
+      fullPath: '/students/'
+      preLoaderRoute: typeof AppStudentsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/api/public/sms': {
       id: '/api/public/sms'
       path: '/api/public/sms'
@@ -374,6 +393,7 @@ interface AppRouteChildren {
   AppSimulateRoute: typeof AppSimulateRoute
   AppSmsRoute: typeof AppSmsRoute
   AppStudentsIdRoute: typeof AppStudentsIdRoute
+  AppStudentsIndexRoute: typeof AppStudentsIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -385,6 +405,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppSimulateRoute: AppSimulateRoute,
   AppSmsRoute: AppSmsRoute,
   AppStudentsIdRoute: AppStudentsIdRoute,
+  AppStudentsIndexRoute: AppStudentsIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
