@@ -104,7 +104,7 @@ function StudentPage() {
               <AlertDialogAction
                 onClick={() => {
                   deleteStudent(student.id);
-                  navigate({ to: "/dashboard" });
+                  navigate({ to: "/students" });
                 }}
               >
                 Remove
